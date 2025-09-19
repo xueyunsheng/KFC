@@ -225,7 +225,7 @@ class MLP_Koopman_Bilinear(torch.nn.Module):
         return st_shift.clamp(self.obs_lower_bound ,self.obs_upper_bound)
     
     
-    def Symmetry_Generator(self,action):
+    def Symmetry_Generator(self,action):#采用西尔韦斯特方程寻找对称性的生成元
       
         action_Bi_weight = self.getBis(action,self.layerBi.weight.data)
         
@@ -241,7 +241,7 @@ class MLP_Koopman_Bilinear(torch.nn.Module):
         return symmetry_gens
     
 
-    def Symmetry_Generator_Eigenspace(self,action):
+    def Symmetry_Generator_Eigenspace(self,action):#利用特征分解分析对称性在自然坐标系下的结构
       
         action_Bi_weight = self.getBis(action,self.layerBi.weight.data)
         
