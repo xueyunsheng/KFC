@@ -49,7 +49,7 @@ class Reshape(torch.nn.Module):
         return torch.reshape(input, shape)
 
       
-
+#输出状态变化向量，该类的输出与kz相加得到koopman空间中下一个状态的隐空间表示
 class MultiplyVec(torch.nn.Module):
     def __init__(self, action_dim, latent_dim,device):
         super(MultiplyVec,self).__init__()
@@ -65,7 +65,8 @@ class MultiplyVec(torch.nn.Module):
             out += vec1[:,i:(i+1)]*vec2[:,i*self.latent_dim:(i+1)*self.latent_dim]
             
         return out
-
+#状态变化趋势向量，该类的输出与K相加得到当前动作对应的动力学矩阵K 
+#目标是执行动作a，背后的数学规则K
 class MultiplyVecMat(torch.nn.Module):
     def __init__(self, action_dim, latent_dim,device):
         super(MultiplyVecMat,self).__init__()
@@ -103,13 +104,13 @@ class MLP_Koopman_Bilinear(torch.nn.Module):
         self.layer3 = nn.Linear(hidden_dim ,latent_dim,bias =  True)
         #self.layer4 = nn.Linear(latent_dim ,latent_dim,bias =  False)
           
-        self.layerK = nn.Linear(latent_dim ,latent_dim,bias = False)
+        self.layerK = nn.Linear(latent_dim ,latent_dim,bias = False) #学习一个固定的动力学项，类似于在不施加任何动作的情况下，系统也会发生演化（固有的特性）
         
-        self.layerBi = nn.Linear(latent_dim ,latent_dim*action_dim,bias = False)
-        self.sum_a_B = MultiplyVec(action_dim,latent_dim,device)
+        self.layerBi = nn.Linear(latent_dim ,latent_dim*action_dim,bias = False) #控制矩阵（控制状态偏移量，是一种物理规律），当前矩阵与状态维度作用，可以得到状态变化向量
+        self.sum_a_B = MultiplyVec(action_dim,latent_dim,device) # 用于计算下一个状态的koopman空间表示
         
-        self.getK = MultiplyVecMat(1,self.latent_dim,device)
-        self.getBis = MultiplyVecMat(self.action_dim,self.latent_dim,device)
+        self.getK = MultiplyVecMat(1,self.latent_dim,device) 
+        self.getBis = MultiplyVecMat(self.action_dim,self.latent_dim,device) #用于计算koopman operate
         
         self.layer3inv = nn.Linear(latent_dim, hidden_dim, bias = True)
         self.layer2inv = nn.Linear(hidden_dim ,hidden_dim ,bias = True)
