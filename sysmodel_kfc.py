@@ -18,8 +18,7 @@ def solve_sylvester(Mat):
     commuter = linalg.solve_sylvester(Mat,-Mat,eM)
     return 1e-5*commuter/commuter.mean()
 
-
-
+# 对矩阵进行分解
 def solve_eig(Mat):
     dim = Mat.shape[0]
     try: 
