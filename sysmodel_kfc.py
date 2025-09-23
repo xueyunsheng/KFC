@@ -129,7 +129,7 @@ class MLP_Koopman_Bilinear(torch.nn.Module):
     def forward(self,state, action,choice = True):
    
         
-        act = self.activation
+        act = self.activation#激活函数
         #Function approximation to Koopman space
         y = act(self.layer1(state))
         y = act(self.layer2(y))
@@ -139,18 +139,18 @@ class MLP_Koopman_Bilinear(torch.nn.Module):
         #gt = self.layer3(y)
         
         if choice:
-            gtp1 = self.layerK(gt) + self.sum_a_B(action,self.layerBi(gt))
+            gtp1 = self.layerK(gt) + self.sum_a_B(action,self.layerBi(gt))#下一个状态的表示
         else:
             gtp1 = gt
             
         
         #inverse Function approximation from  Koopman space to state space
-        z = act(self.layer3inv(gtp1))
+        z = act(self.layer3inv(gtp1))#decoder原状态空间
         #z = seaf.layer3.inverse(gtp1)
         z = act(self.layer2inv(z))
         z = self.layer1inv(z)
         
-        next_state = z.clamp(self.obs_lower_bound ,self.obs_upper_bound)
+        next_state = z.clamp(self.obs_lower_bound ,self.obs_upper_bound)#约束状态上下限
 
 
         return next_state
